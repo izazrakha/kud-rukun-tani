@@ -173,7 +173,7 @@ export default function Home() {
       </div>
       <div>
         <h2 className="text-4xl font-bold text-gray-800 mb-4">KUD Rukun Tani Cilongok</h2>
-        <p className="text-gray-600 leading-relaxed mb-6">
+        <p className="text-gray-600 text-justify leading-relaxed mb-6 pr-10">
           KUD Rukun Tani Cilongok adalah Koperasi Unit Desa yang berperan sebagai wadah ekonomi bagi petani
           dan masyarakat di Kecamatan Cilongok, Kabupaten Banyumas. Sebagai salah satu KUD terbesar di daerahnya,
           kami menyediakan berbagai layanan dengan prinsip kebersamaan dan kesejahteraan anggota.

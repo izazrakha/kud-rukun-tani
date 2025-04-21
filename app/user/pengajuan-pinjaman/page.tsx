@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { LayoutDashboard, FileText, ClipboardList, Wallet, Settings, LogOut } from "lucide-react"
+import { LayoutDashboard, FileText, ClipboardList, Wallet, Settings, LogOut, InfoIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Type for user data
 type UserData = {
@@ -47,6 +48,7 @@ export default function PengajuanPinjaman() {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
+  const [monthlyInstallment, setMonthlyInstallment] = useState<number | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -94,6 +96,34 @@ export default function PengajuanPinjaman() {
     router.push("/login")
   }
 
+  const calculateMonthlyInstallment = (amount: string, duration: string) => {
+    if (!amount || !duration) {
+      setMonthlyInstallment(null)
+      return
+    }
+
+    // Remove non-numeric characters and convert to number
+    const loanAmount = Number(amount.replace(/\D/g, ""))
+    const loanDuration = Number(duration)
+
+    if (isNaN(loanAmount) || isNaN(loanDuration) || loanAmount <= 0 || loanDuration <= 0) {
+      setMonthlyInstallment(null)
+      return
+    }
+
+    // Calculate total interest (1.5% per month)
+    const monthlyInterestRate = 0.015
+    const totalInterest = loanAmount * monthlyInterestRate * loanDuration
+
+    // Calculate total amount to be paid
+    const totalAmount = loanAmount + totalInterest
+
+    // Calculate monthly installment
+    const monthly = totalAmount / loanDuration
+
+    setMonthlyInstallment(monthly)
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -107,6 +137,11 @@ export default function PengajuanPinjaman() {
         ...prev,
         [name]: "",
       }))
+    }
+
+    // Calculate monthly installment if amount changes
+    if (name === "jumlahPinjaman") {
+      calculateMonthlyInstallment(value, formData.lamaPinjaman)
     }
   }
 
@@ -123,14 +158,20 @@ export default function PengajuanPinjaman() {
         lamaPinjaman: "",
       }))
     }
+
+    // Calculate monthly installment
+    calculateMonthlyInstallment(formData.jumlahPinjaman, value)
   }
 
-  const formatCurrency = (amount: string) => {
-    // Remove non-numeric characters
-    const numericValue = amount.replace(/\D/g, "")
-
-    // Format as currency
-    return new Intl.NumberFormat("id-ID").format(Number.parseInt(numericValue) || 0)
+  const formatCurrency = (amount: string | number) => {
+    if (typeof amount === "string") {
+      // Remove non-numeric characters
+      const numericValue = amount.replace(/\D/g, "")
+      // Format as currency
+      return new Intl.NumberFormat("id-ID").format(Number.parseInt(numericValue) || 0)
+    } else {
+      return new Intl.NumberFormat("id-ID").format(amount)
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -257,7 +298,10 @@ export default function PengajuanPinjaman() {
               </Link>
             </li>
             <li>
-              <Link href="/user/pengajuan-pinjaman" className="flex items-center p-3 rounded-md bg-[#2B7A39] text-white">
+              <Link
+                href="/user/pengajuan-pinjaman"
+                className="flex items-center p-3 rounded-md bg-[#2B7A39] text-white"
+              >
                 <FileText className="mr-3" size={20} />
                 <span>Pengajuan Pinjaman</span>
               </Link>
@@ -281,7 +325,10 @@ export default function PengajuanPinjaman() {
               </Link>
             </li>
             <li>
-              <Link href="/user/pengaturan" className="flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100">
+              <Link
+                href="/user/pengaturan"
+                className="flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100"
+              >
                 <Settings className="mr-3" size={20} />
                 <span>Pengaturan</span>
               </Link>
@@ -391,6 +438,24 @@ export default function PengajuanPinjaman() {
                 {errors.lamaPinjaman && <p className="text-red-500 text-sm mt-1">{errors.lamaPinjaman}</p>}
               </div>
 
+              {/* Monthly Installment Information */}
+              {monthlyInstallment !== null && (
+                <div className="mt-4">
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <div className="flex items-start">
+                      <InfoIcon className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                      <AlertDescription className="text-gray-700">
+                        <p className="font-medium">Informasi Cicilan:</p>
+                        <p>Dengan bunga 1,5% per bulan, cicilan bulanan Anda adalah:</p>
+                        <p className="text-lg font-semibold text-[#2B7A39] mt-1">
+                          Rp {formatCurrency(monthlyInstallment)} / bulan
+                        </p>
+                      </AlertDescription>
+                    </div>
+                  </Alert>
+                </div>
+              )}
+
               <div className="flex justify-center mt-8">
                 <Button
                   type="submit"
@@ -407,4 +472,3 @@ export default function PengajuanPinjaman() {
     </div>
   )
 }
-

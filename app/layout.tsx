@@ -24,7 +24,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster /> {/* 🔥 Pastikan Toaster ada di sini */}
+          <Toaster /> 
         </ThemeProvider>
       </body>
     </html>

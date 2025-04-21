@@ -282,7 +282,7 @@ export default function AdminPengaturan() {
 
         {/* Main Content */}
         <main className="flex-1 bg-gray-100 p-8">
-          <h1 className="text-3xl font-bold mb-8">Profil User</h1>
+          <h1 className="text-3xl font-bold mb-8">Profil Admin</h1>
 
           <div className="bg-white rounded-lg shadow-sm p-8 mb-8 max-w-4xl mx-auto">
             <div className="flex flex-col items-center mb-8">
